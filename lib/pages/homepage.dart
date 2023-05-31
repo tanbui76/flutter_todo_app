@@ -1,7 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:mid_term_flutter/compoments/custom_to_do_item.dart';
-import 'package:mid_term_flutter/compoments/search_box._compoment.dart';
-import 'package:mid_term_flutter/models/to_do_models.dart';
+import 'package:mid_term_flutter/pages/recyclepage.dart';
+import 'package:mid_term_flutter/pages/todopage.dart';
+
+import 'donepage.dart';
+
+/// Flutter code sample for [BottomNavigationBar].
+
+void main() => runApp(const HomePageApp());
+
+class HomePageApp extends StatelessWidget {
+  const HomePageApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      home: HomePage(),
+    );
+  }
+}
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -11,101 +27,49 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // ignore: non_constant_identifier_names
-  List<ToDoItems> Items = [];
-  bool isAdding = false;
-  IconData icon = Icons.add;
-  final TextEditingController titleController = TextEditingController();
+  int _selectedIndex = 0;
+  static const TextStyle optionStyle =
+      TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
+  static const List<Widget> _widgetOptions = <Widget>[
+    ToDoPage(),
+    DonePage(),
+    RecyclePage(),
+  ];
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(children: [
-        Column(
-          children: [
-            const SearchBox(),
-            Expanded(
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemBuilder: (context, index) {
-                  return CustomToDoItem(
-                    // ignore: unnecessary_string_interpolations
-                    title: "${Items[index].title}",
-                  );
-                },
-                itemCount: Items.length,
-              ),
-            )
-          ],
-        ),
-        Visibility(
-            visible: Items.isEmpty,
-            child: const Center(
-                child: Text(
-              "All nothing to show here. Good Job!",
-            ))),
-        Align(
-          alignment: Alignment.bottomCenter,
-          child: Container(
-              margin: const EdgeInsets.only(
-                  bottom: 10, left: 10, right: 10, top: 10),
-              padding: const EdgeInsets.only(
-                  bottom: 15, left: 10, right: 10, top: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Visibility(
-                    visible: isAdding,
-                    child: Expanded(
-                        child: Container(
-                      color: Colors.white,
-                      child: TextField(
-                        controller: titleController,
-                        textInputAction: TextInputAction.done,
-                        onSubmitted: (value) {
-                          setState(() {
-                            Items.add(ToDoItems(title: value));
-                            titleController.clear();
-                          });
-                        },
-                        decoration: const InputDecoration(
-                            hintText: "Việc cần làm",
-                            prefixIcon: Icon(Icons.add),
-                            border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(20.0)))),
-                      ),
-                    )),
-                  ),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  // Spacer(),
-                  Container(
-                    padding: const EdgeInsets.only(
-                        bottom: 10, left: 10, right: 10, top: 10),
-                    decoration: const BoxDecoration(
-                      color: Colors.blue,
-                      borderRadius: BorderRadius.all(Radius.circular(100)),
-                    ),
-                    child: IconButton(
-                      onPressed: () {
-                        setState(() {
-                          if (isAdding == true) {
-                            isAdding = false;
-                            icon = Icons.add;
-                          } else {
-                            isAdding = true;
-                            icon = Icons.close;
-                          }
-                        });
-                      },
-                      icon: Icon(icon, color: Colors.white),
-                    ),
-                  ),
-                ],
-              )),
-        ),
-      ]),
+      body: Center(
+        child: _widgetOptions.elementAt(_selectedIndex),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.pending_actions_rounded),
+            label: 'To Do',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.check_box_rounded),
+            label: 'Done',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.delete_outline_rounded),
+            label: 'Recycle',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.white,
+        backgroundColor: Colors.blue[900],
+        unselectedItemColor: Colors.indigo[300],
+        showUnselectedLabels: false,
+        onTap: _onItemTapped,
+      ),
     );
   }
 }
