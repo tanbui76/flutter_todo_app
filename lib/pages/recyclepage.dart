@@ -25,6 +25,7 @@ class _RecyclePageState extends State<RecyclePage> {
             const SearchBox(),
             Expanded(
               child: ListView.builder(
+                padding: const EdgeInsets.all(10),
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
                   return CustomToDoItem(

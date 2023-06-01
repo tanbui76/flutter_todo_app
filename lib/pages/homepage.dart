@@ -1,11 +1,14 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
+import 'package:mid_term_flutter/pages/loginpage.dart';
 import 'package:mid_term_flutter/pages/recyclepage.dart';
 import 'package:mid_term_flutter/pages/todopage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'donepage.dart';
 
 /// Flutter code sample for [BottomNavigationBar].
-
 void main() => runApp(const HomePageApp());
 
 class HomePageApp extends StatelessWidget {
@@ -27,6 +30,20 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  void initState() {
+    super.initState();
+    checkLogin();
+  }
+
+  void checkLogin() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    if (!prefs.containsKey('account')) {
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => const LoginPage()));
+    }
+  }
+
   int _selectedIndex = 0;
   static const TextStyle optionStyle =
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);

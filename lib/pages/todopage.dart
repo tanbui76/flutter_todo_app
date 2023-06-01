@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mid_term_flutter/compoments/custom_to_do_item.dart';
 import 'package:mid_term_flutter/compoments/search_box._compoment.dart';
 import 'package:mid_term_flutter/models/to_do_models.dart';
+import 'package:flutter/foundation.dart';
 
 import '../service/share_preferences.dart';
 
@@ -13,18 +14,25 @@ class ToDoPage extends StatefulWidget {
 }
 
 class _ToDoPageState extends State<ToDoPage> {
+  List<ToDoItems> ItemData = [];
+  List<ToDoItems> searchList = [];
   @override
   void initState() {
     super.initState();
+    debugPrint('initState has runned');
     getData();
   }
 
   void getData() {
-    SharePrefs().getToDo().then((value) {
+    debugPrint("da run vao getdata");
+    SharePrefs().getTodo().then((value) {
       if (value != null) {
-        setState(() {
-          Items = value;
-        });
+        ItemData = value.toList();
+        searchList = [...ItemData]
+            .where(
+                (element) => element.status == 0 && element.isDelete == false)
+            .toList();
+        setState(() {});
       }
     });
   }
@@ -46,17 +54,30 @@ class _ToDoPageState extends State<ToDoPage> {
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
                   return CustomToDoItem(
-                    // ignore: unnecessary_string_interpolations
-                    title: "${Items[index].title}",
+                    title: searchList[index].title ?? "",
+                    onTap: () {
+                      searchList[index].status = 1;
+                      searchList[index].isDelete = false;
+                      //  ItemData.add(searchList[index]);
+                      SharePrefs().addBills(ItemData);
+                      getData();
+                      setState(() {});
+                    },
+                    onDeleted: () {
+                      searchList[index].isDelete = true;
+                      SharePrefs().addBills(ItemData);
+                      getData();
+                      setState(() {});
+                    },
                   );
                 },
-                itemCount: Items.length,
+                itemCount: searchList.length,
               ),
             )
           ],
         ),
         Visibility(
-            visible: Items.isEmpty,
+            visible: searchList.isEmpty,
             child: const Center(
                 child: Text(
               "Ahh nothing to show here. Good Job!",
@@ -80,12 +101,18 @@ class _ToDoPageState extends State<ToDoPage> {
                         controller: titleController,
                         textInputAction: TextInputAction.done,
                         onSubmitted: (value) {
-                          setState(() {
-                            Items.add(ToDoItems(
-                                title: value, status: 0, isDelete: false));
-                            SharePrefs().saveToDoList(Items);
-                            titleController.clear();
-                          });
+                          //THÊM Ở ĐÂYYYYYYY
+
+                          ItemData.add(ToDoItems(
+                            title: value,
+                            status: 0,
+                            isDelete: false,
+                          ));
+
+                          SharePrefs().addBills(ItemData);
+                          getData();
+                          setState(() {});
+                          titleController.clear();
                         },
                         decoration: const InputDecoration(
                             hintText: "Enter your task",
